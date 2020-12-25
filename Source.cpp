@@ -198,6 +198,10 @@ void timeOutFunc(int sigNum)
 void testTime(int mapSize = 250)
 {
 	cout << "***********ELASPED TIME TEST***********\n" << endl;
+<<<<<<< HEAD
+=======
+	int mapSize = 10;
+>>>>>>> 304913e577ccb2bf6f763d24eecc2d545eeef9ec
 	cout << "Map size: " << mapSize << endl;
 	Map map(mapSize);
 	clock_t begin = clock();
@@ -230,14 +234,17 @@ void testTime(int mapSize = 250)
 
 	signal(SIGALRM, timeOutFunc);
 	alarm(10);
-	cout << "Bruteforce time: ";
+	cout << "Bruteforce\n";
 	begin = clock();
 	int brute = map.bruteForce();
 	end = clock();
 	cout << double(end - begin) / CLOCKS_PER_SEC << " seconds" << endl;
-	cout << "Result : " << brute << endl;
 	cout << "***************************************" << endl;
 	
+}
+
+void resultTest()
+{
 }
 
 
