@@ -4,7 +4,8 @@
 #include <iomanip>
 #include <climits>
 #include <cmath>
-
+#include <utility>
+#include <algorithm>
 using namespace std;
 class Map
 {
@@ -142,6 +143,31 @@ public:
 		delete[] visited;
 		return result;
 	}
+
+	int bruteForce()
+	{
+		vector<int> arr;
+		pair<int, vector<int>> bestPath; //first element is the length of the best path, second one is the vector that saves the path
+		for (size_t i = 0; i < distance.size(); i++)
+		{
+			arr.push_back(i);
+		}
+		bestPath.first = INT_MAX;
+		do
+		{
+			int pathLen = result(arr);
+			//printArr(arr, pathLen);
+			if (pathLen < bestPath.first)
+			{
+				bestPath.first = pathLen;
+				bestPath.second = arr;
+			}
+		}
+		while (next_permutation(arr.begin(), arr.end()));
+		cout << "Best path found: ";
+		printArr(bestPath.second, bestPath.first);
+		return bestPath.first;
+	}
 	~Map() {};
 
 private:
@@ -171,16 +197,17 @@ int main() {
 	int countHill = 0;
 	int countSA = 0;
 	int n = 10;
-	Map m(200);
+	Map m;
+	m.bruteForce();
 	int x = m.HillClimbing();
 	cout <<  "Hill Climbing: " << x << endl;
 	int z = m.HillClimbing(false, true);
-	cout << "Hill Climbing gready: " << z << endl;
-	if (z < x) x = z;
+	cout << "Hill Climbing greedy: " << z << endl;
+	/*if (z < x) x = z;
 	for (int i = 0; i < n; i++)
 	{
 		
-		//m.printDistance();
+		m.printDistance();
 		
 		//cout << "==============================" << endl;
 		int y = m.SimulatedAnnealing();
@@ -201,6 +228,6 @@ int main() {
 
 	//m.printDistance();
 	//m.HillClimbing();
-	//m.SimulatedAnnealing();
+	//m.SimulatedAnnealing();*/
 
 }
