@@ -40,31 +40,11 @@ public:
 			cout << endl;
 		}
 	}
-	int result(const vector<int> &arr) {
-		int rs = 0;
-		for (size_t i = 0; i < distance.size() - 1; i++)
-		{
-			rs += distance[arr[i]][arr[i + 1]];
-		}
-		rs += distance[arr[0]][arr[distance.size() - 1]];
-		return rs;
-	}
-	int Delta(vector<int> &arr, int i, int j) {
-		int beforei = (i - 1 < 0) ? arr.size() - 1: i - 1;
-		int afteri = (i + 1 == arr.size()) ? 0 : i + 1;
-		int beforej = (j - 1 < 0) ? arr.size() - 1: j - 1;
-		int afterj = (j + 1 == arr.size()) ? 0 : j + 1;
-		int beforeSwap = distance[arr[beforei]][arr[i]] + distance[arr[i]][arr[afteri]] + distance[arr[beforej]][arr[j]] + distance[arr[j]][arr[afterj]];
-		swap(arr[i], arr[j]);
-		int afterSwap = distance[arr[beforei]][arr[i]] + distance[arr[i]][arr[afteri]] + distance[arr[beforej]][arr[j]] + distance[arr[j]][arr[afterj]];
-		swap(arr[i], arr[j]);
-		return afterSwap - beforeSwap;
-	}
 	int HillClimbing(bool print = false, bool greedy_ = false) {
 		vector<int> arr;
 
 		if (greedy_)
-			arr = greedy();
+			arr = greedyHelp();
 		else
 			for (size_t i = 0; i < distance.size(); i++)
 			{
@@ -91,7 +71,7 @@ public:
 		vector<int> arr;
 
 		if (greedy_)
-			arr = greedy();
+			arr = greedyHelp();
 		else
 			for (size_t i = 0; i < distance.size(); i++)
 			{
@@ -117,8 +97,67 @@ public:
 		}
 		return bestResult;
 	}
+	int bruteForce()
+	{
+		vector<int> arr;
+		pair<int, vector<int>> bestPath; //first element is the length of the best path, second one is the vector that saves the path
+		for (size_t i = 0; i < distance.size(); i++)
+		{
+			arr.push_back(i);
+		}
+		bestPath.first = INT_MAX;
+		do
+		{
+			int pathLen = result(arr);
+			//printArr(arr, pathLen);
+			if (pathLen < bestPath.first)
+			{
+				bestPath.first = pathLen;
+				bestPath.second = arr;
+			}
+		} while (next_permutation(arr.begin(), arr.end()));
+		cout << "Best path found: ";
+		printArr(bestPath.second, bestPath.first);
+		return bestPath.first;
+	}
+	int greedy() {
+		return result(greedyHelp());
+	}
+	~Map() {};
 
-	vector<int> greedy() {
+private:
+	int result(const vector<int> &arr) {
+		int rs = 0;
+		for (size_t i = 0; i < distance.size() - 1; i++)
+		{
+			rs += distance[arr[i]][arr[i + 1]];
+		}
+		rs += distance[arr[0]][arr[distance.size() - 1]];
+		return rs;
+	}
+	int Delta(vector<int> &arr, int i, int j) {
+		int beforei = (i - 1 < 0) ? arr.size() - 1: i - 1;
+		int afteri = (i + 1 == arr.size()) ? 0 : i + 1;
+		int beforej = (j - 1 < 0) ? arr.size() - 1: j - 1;
+		int afterj = (j + 1 == arr.size()) ? 0 : j + 1;
+		int beforeSwap = distance[arr[beforei]][arr[i]] + distance[arr[i]][arr[afteri]] + distance[arr[beforej]][arr[j]] + distance[arr[j]][arr[afterj]];
+		swap(arr[i], arr[j]);
+		int afterSwap = distance[arr[beforei]][arr[i]] + distance[arr[i]][arr[afteri]] + distance[arr[beforej]][arr[j]] + distance[arr[j]][arr[afterj]];
+		swap(arr[i], arr[j]);
+		return afterSwap - beforeSwap;
+	}
+	void printArr(vector<int> arr, int result) {
+		for (size_t i = 0; i < arr.size(); i++)
+		{
+			cout << arr[i];
+			if (i != arr.size() - 1) cout << "->";
+		}
+		cout << " " << result << endl;
+	}
+	double getRand() {
+		return (double)rand() / RAND_MAX;
+	}
+	vector<int> greedyHelp() {
 		vector<int> result;
 		int min = 0;
 		int pos = 0;
@@ -145,51 +184,6 @@ public:
 		delete[] visited;
 		return result;
 	}
-
-	int bruteForce()
-	{
-		vector<int> arr;
-		pair<int, vector<int>> bestPath; //first element is the length of the best path, second one is the vector that saves the path
-		for (size_t i = 0; i < distance.size(); i++)
-		{
-			arr.push_back(i);
-		}
-		bestPath.first = INT_MAX;
-		do
-		{
-			int pathLen = result(arr);
-			//printArr(arr, pathLen);
-			if (pathLen < bestPath.first)
-			{
-				bestPath.first = pathLen;
-				bestPath.second = arr;
-			}
-		} while (next_permutation(arr.begin(), arr.end()));
-		cout << "Best path found: ";
-		printArr(bestPath.second, bestPath.first);
-		return bestPath.first;
-	}
-	~Map() {};
-
-private:
-	void printArr(vector<int> arr, int result) {
-		for (size_t i = 0; i < arr.size(); i++)
-		{
-			cout << arr[i];
-			if (i != arr.size() - 1) cout << "->";
-		}
-		cout << " " << result << endl;
-	}
-	double getRand() {
-		return (double)rand() / RAND_MAX;
-	}
-
-	//static int getPos(char c) {
-	//	return (int)c - 65;
-	//}
-	//static char getChar(int i) {
-	//	return (char)(i + 65);
-	//}
 };
 
 
