@@ -198,10 +198,6 @@ void timeOutFunc(int sigNum)
 void testTime(int mapSize = 250)
 {
 	cout << "***********ELASPED TIME TEST***********\n" << endl;
-<<<<<<< HEAD
-=======
-	int mapSize = 10;
->>>>>>> 304913e577ccb2bf6f763d24eecc2d545eeef9ec
 	cout << "Map size: " << mapSize << endl;
 	Map map(mapSize);
 	clock_t begin = clock();
