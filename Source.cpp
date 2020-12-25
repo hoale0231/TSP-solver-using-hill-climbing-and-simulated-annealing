@@ -38,26 +38,16 @@ public:
 		{
 			for (size_t j = 0; j < distance[i].size(); j++)
 			{
-				cout << setw(4) <<distance[i][j] << " ";
+				cout << setw(4) << distance[i][j] << " ";
 			}
 			cout << endl;
 		}
 	}
-	int result(vector<int> arr) {
-		int rs = 0;
-		for (size_t i = 0; i < distance.size() - 1; i++)
-		{
-			rs += distance[arr[i]][arr[i + 1]];
-		}
-		rs += distance[arr[0]][arr[distance.size() - 1]];
-		return rs;
-	}
-	
 	int HillClimbing(bool print = false, bool greedy_ = false) {
 		vector<int> arr;
 
-		if(greedy_)
-			arr = greedy();
+		if (greedy_)
+			arr = greedyHelp();
 		else
 			for (size_t i = 0; i < distance.size(); i++)
 			{
@@ -65,22 +55,17 @@ public:
 			}
 		int bestResult = this->result(arr);
 		if (print) printArr(arr, bestResult);
-		int neighbour = 0;
 		for (size_t i = 0; i < distance.size(); i++)
 		{
 			for (size_t j = i + 1; j < distance.size(); j++) {
-				swap(arr[i], arr[j]);
-				neighbour = this->result(arr);
-				if (neighbour < bestResult) { 
-					bestResult = neighbour;
+				int delta = Delta(arr, i, j);
+				if (delta < 0) {
+					swap(arr[i], arr[j]);
+					bestResult += delta;
 					if (print) printArr(arr, bestResult);
 					i = -1;
 					break;
 				}
-				else {
-					swap(arr[i], arr[j]);
-				}
-
 			}
 		}
 		return bestResult;
@@ -89,7 +74,7 @@ public:
 		vector<int> arr;
 
 		if (greedy_)
-			arr = greedy();
+			arr = greedyHelp();
 		else
 			for (size_t i = 0; i < distance.size(); i++)
 			{
@@ -97,29 +82,85 @@ public:
 			}
 		int bestResult = this->result(arr);
 		//cout << s << "  " << bestResult << endl;
-		int neighbour = 0;
-		for (double T = 10000; T > 0.00001; T *= 0.9999) {
+
+		for (double T = 1000; T > 0.00001; T *= 0.9999) {
 			for (int r = 0; r < 10; r++) {
 				int i = rand() % distance.size();
 				int j = rand() % distance.size();
 				while (i == j) {
 					j = rand() % distance.size();
 				}
-				swap(arr[i], arr[j]);
-				neighbour = this->result(arr);
+				int delta = Delta(arr, i, j);
 
-				if (neighbour < bestResult || exp((double)-(neighbour - bestResult) / T) >= getRand()) {
-					bestResult = neighbour;
-				}
-				else {
+				if (delta < 0 || exp(-(double)delta / T) >= getRand()) {
+					bestResult += delta;
 					swap(arr[i], arr[j]);
 				}
 			}
 		}
 		return bestResult;
 	}
+	int bruteForce()
+	{
+		vector<int> arr;
+		pair<int, vector<int>> bestPath; //first element is the length of the best path, second one is the vector that saves the path
+		for (size_t i = 0; i < distance.size(); i++)
+		{
+			arr.push_back(i);
+		}
+		bestPath.first = INT_MAX;
+		do
+		{
+			int pathLen = result(arr);
+			//printArr(arr, pathLen);
+			if (pathLen < bestPath.first)
+			{
+				bestPath.first = pathLen;
+				bestPath.second = arr;
+			}
+		} while (next_permutation(arr.begin(), arr.end()));
+		cout << "Best path found: ";
+		printArr(bestPath.second, bestPath.first);
+		return bestPath.first;
+	}
+	int greedy() {
+		return result(greedyHelp());
+	}
+	~Map() {};
 
-	vector<int> greedy() {
+private:
+	int result(const vector<int> &arr) {
+		int rs = 0;
+		for (size_t i = 0; i < distance.size() - 1; i++)
+		{
+			rs += distance[arr[i]][arr[i + 1]];
+		}
+		rs += distance[arr[0]][arr[distance.size() - 1]];
+		return rs;
+	}
+	int Delta(vector<int> &arr, int i, int j) {
+		int beforei = (i - 1 < 0) ? arr.size() - 1: i - 1;
+		int afteri = (i + 1 == arr.size()) ? 0 : i + 1;
+		int beforej = (j - 1 < 0) ? arr.size() - 1: j - 1;
+		int afterj = (j + 1 == arr.size()) ? 0 : j + 1;
+		int beforeSwap = distance[arr[beforei]][arr[i]] + distance[arr[i]][arr[afteri]] + distance[arr[beforej]][arr[j]] + distance[arr[j]][arr[afterj]];
+		swap(arr[i], arr[j]);
+		int afterSwap = distance[arr[beforei]][arr[i]] + distance[arr[i]][arr[afteri]] + distance[arr[beforej]][arr[j]] + distance[arr[j]][arr[afterj]];
+		swap(arr[i], arr[j]);
+		return afterSwap - beforeSwap;
+	}
+	void printArr(vector<int> arr, int result) {
+		for (size_t i = 0; i < arr.size(); i++)
+		{
+			cout << arr[i];
+			if (i != arr.size() - 1) cout << "->";
+		}
+		cout << " " << result << endl;
+	}
+	double getRand() {
+		return (double)rand() / RAND_MAX;
+	}
+	vector<int> greedyHelp() {
 		vector<int> result;
 		int min = 0;
 		int pos = 0;
@@ -146,52 +187,6 @@ public:
 		delete[] visited;
 		return result;
 	}
-
-	int bruteForce()
-	{
-		vector<int> arr;
-		pair<int, vector<int>> bestPath; //first element is the length of the best path, second one is the vector that saves the path
-		for (size_t i = 0; i < distance.size(); i++)
-		{
-			arr.push_back(i);
-		}
-		bestPath.first = INT_MAX;
-		do
-		{
-			int pathLen = result(arr);
-			//printArr(arr, pathLen);
-			if (pathLen < bestPath.first)
-			{
-				bestPath.first = pathLen;
-				bestPath.second = arr;
-			}
-		}
-		while (next_permutation(arr.begin(), arr.end()));
-		cout << "Best path found: ";
-		printArr(bestPath.second, bestPath.first);
-		return bestPath.first;
-	}
-	~Map() {};
-
-private:
-	void printArr(vector<int> arr, int result) {
-		for (size_t i = 0; i < arr.size(); i++)
-		{
-			cout << arr[i];
-			if (i != arr.size() - 1) cout << "->";
-		}
-		cout << " " << result << endl;
-	}
-	double getRand() {
-		return (double)rand() / RAND_MAX;
-	}
-
-	//static int getPos(char c) {
-	//	return (int)c - 65;
-	//}
-	//static char getChar(int i) {
-	//	return (char)(i + 65);
-	//}
 };
 
 void timeOutFunc(int sigNum)
@@ -252,38 +247,6 @@ int main() {
 	int countHill = 0;
 	int countSA = 0;
 	int n = 10;
-	Map m;
 	testTime();
-	//cout <<  "Hill Climbing: " << m.HillClimbing() << endl;
-	//m.bruteForce();
-	/*int x = m.HillClimbing();
-	cout <<  "Hill Climbing: " << x << endl;
-	int z = m.HillClimbing(false, true);
-	cout << "Hill Climbing greedy: " << z << endl;
-	if (z < x) x = z;
-	for (int i = 0; i < n; i++)
-	{
-		
-		//m.printDistance();
-		//cout << "==============================" << endl;
-		int y = m.SimulatedAnnealing();
-		cout  << "Simulated Annealing: " << y << endl;
-		z = m.SimulatedAnnealing(true);
-		cout << "Simulated Annealing greedy: " << z << endl;
-		if (z < y) y = z;
-		if (x < y) {
-			countHill++;
-		}
-		if (y > x) {
-			countSA++;
-		}
-		cout << "===============================================================" << endl;
-	}
-	cout << "Hill Climbing: " << countHill << endl << "Simulated Annealing: " << countSA;
-	//Map m;
-
-	//m.printDistance();
-	//m.HillClimbing();
-	//m.SimulatedAnnealing();*/
 
 }
