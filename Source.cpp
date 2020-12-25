@@ -5,13 +5,12 @@
 #include <climits>
 #include <cmath>
 
-//Test
 using namespace std;
-class map
+class Map
 {
 	vector<vector<int>> distance;
 public:
-	map(int n = 8) {
+	Map(int n = 8) {
 		distance.resize(n);
 		for (size_t i = 0; i < n; i++)
 		{
@@ -143,7 +142,7 @@ public:
 		delete[] visited;
 		return result;
 	}
-	~map() {};
+	~Map() {};
 
 private:
 	void printArr(vector<int> arr, int result) {
@@ -172,7 +171,7 @@ int main() {
 	int countHill = 0;
 	int countSA = 0;
 	int n = 10;
-	map m(200);
+	Map m(200);
 	int x = m.HillClimbing();
 	cout <<  "Hill Climbing: " << x << endl;
 	int z = m.HillClimbing(false, true);
@@ -187,7 +186,7 @@ int main() {
 		int y = m.SimulatedAnnealing();
 		cout  << "Simulated Annealing: " << y << endl;
 		z = m.SimulatedAnnealing(true);
-		cout << "Simulated Annealing gready: " << z << endl;
+		cout << "Simulated Annealing greedy: " << z << endl;
 		if (z < y) y = z;
 		if (x < y) {
 			countHill++;
@@ -198,7 +197,7 @@ int main() {
 		cout << "===============================================================" << endl;
 	}
 	cout << "Hill Climbing: " << countHill << endl << "Simulated Annealing: " << countSA;
-	//map m;
+	//Map m;
 
 	//m.printDistance();
 	//m.HillClimbing();
