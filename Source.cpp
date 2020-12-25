@@ -6,6 +6,9 @@
 #include <cmath>
 #include <utility>
 #include <algorithm>
+#include <unistd.h>
+#include <csignal>
+
 using namespace std;
 class Map
 {
@@ -191,6 +194,58 @@ private:
 	//}
 };
 
+void timeOutFunc(int sigNum)
+{
+	cout << "TIME OUT" << endl;
+	exit(1);
+}
+
+void testTime()
+{
+	cout << "***********ELASPED TIME TEST***********\n" << endl;
+	int mapSize = 250;
+	cout << "Map size: " << mapSize << endl;
+	Map map(mapSize);
+	clock_t begin = clock();
+	int hillClimb = map.HillClimbing();
+	clock_t end = clock();
+	cout << "Hill climbing time: " << double(end - begin) / CLOCKS_PER_SEC << " seconds" << endl;
+	cout << "Result : " << hillClimb << endl;
+	cout << "***************************************" << endl;
+
+	begin = clock();
+	int hillClimbGreed = map.HillClimbing(false, true);
+	end = clock();
+	cout << "Hill climbing (with greedy) time: " << double(end - begin) / CLOCKS_PER_SEC << " seconds" << endl;
+	cout << "Result : " << hillClimbGreed << endl;
+	cout << "***************************************" << endl;
+
+	begin = clock();
+	int annealing = map.SimulatedAnnealing();
+	end = clock();
+	cout << "Simulated Annealing time: " << double(end - begin) / CLOCKS_PER_SEC << " seconds" << endl;
+	cout << "Result : " << annealing << endl;
+	cout << "***************************************" << endl;
+
+	begin = clock();
+	int annealingGreed = map.SimulatedAnnealing(true);
+	end = clock();
+	cout << "Simulated Annealing (with greedy method) time: " << double(end - begin) / CLOCKS_PER_SEC << " seconds" << endl;
+	cout << "Result : " << annealingGreed << endl;
+	cout << "***************************************" << endl;
+
+	signal(SIGALRM, timeOutFunc);
+	alarm(10);
+	cout << "Bruteforce time: ";
+	begin = clock();
+	int brute = map.bruteForce();
+	end = clock();
+	cout << double(end - begin) / CLOCKS_PER_SEC << " seconds" << endl;
+	cout << "Result : " << brute << endl;
+	cout << "***************************************" << endl;
+	
+}
+
 
 int main() {
 	srand(clock());
@@ -198,17 +253,18 @@ int main() {
 	int countSA = 0;
 	int n = 10;
 	Map m;
-	m.bruteForce();
-	int x = m.HillClimbing();
+	testTime();
+	//cout <<  "Hill Climbing: " << m.HillClimbing() << endl;
+	//m.bruteForce();
+	/*int x = m.HillClimbing();
 	cout <<  "Hill Climbing: " << x << endl;
 	int z = m.HillClimbing(false, true);
 	cout << "Hill Climbing greedy: " << z << endl;
-	/*if (z < x) x = z;
+	if (z < x) x = z;
 	for (int i = 0; i < n; i++)
 	{
 		
-		m.printDistance();
-		
+		//m.printDistance();
 		//cout << "==============================" << endl;
 		int y = m.SimulatedAnnealing();
 		cout  << "Simulated Annealing: " << y << endl;
