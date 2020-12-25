@@ -35,12 +35,12 @@ public:
 		{
 			for (size_t j = 0; j < distance[i].size(); j++)
 			{
-				cout << setw(4) <<distance[i][j] << " ";
+				cout << setw(4) << distance[i][j] << " ";
 			}
 			cout << endl;
 		}
 	}
-	int result(vector<int> arr) {
+	int result(const vector<int> &arr) {
 		int rs = 0;
 		for (size_t i = 0; i < distance.size() - 1; i++)
 		{
@@ -49,11 +49,21 @@ public:
 		rs += distance[arr[0]][arr[distance.size() - 1]];
 		return rs;
 	}
-	
+	int Delta(vector<int> &arr, int i, int j) {
+		int beforei = (i - 1 < 0) ? arr.size() - 1: i - 1;
+		int afteri = (i + 1 == arr.size()) ? 0 : i + 1;
+		int beforej = (j - 1 < 0) ? arr.size() - 1: j - 1;
+		int afterj = (j + 1 == arr.size()) ? 0 : j + 1;
+		int beforeSwap = distance[arr[beforei]][arr[i]] + distance[arr[i]][arr[afteri]] + distance[arr[beforej]][arr[j]] + distance[arr[j]][arr[afterj]];
+		swap(arr[i], arr[j]);
+		int afterSwap = distance[arr[beforei]][arr[i]] + distance[arr[i]][arr[afteri]] + distance[arr[beforej]][arr[j]] + distance[arr[j]][arr[afterj]];
+		swap(arr[i], arr[j]);
+		return afterSwap - beforeSwap;
+	}
 	int HillClimbing(bool print = false, bool greedy_ = false) {
 		vector<int> arr;
 
-		if(greedy_)
+		if (greedy_)
 			arr = greedy();
 		else
 			for (size_t i = 0; i < distance.size(); i++)
@@ -62,22 +72,17 @@ public:
 			}
 		int bestResult = this->result(arr);
 		if (print) printArr(arr, bestResult);
-		int neighbour = 0;
 		for (size_t i = 0; i < distance.size(); i++)
 		{
 			for (size_t j = i + 1; j < distance.size(); j++) {
-				swap(arr[i], arr[j]);
-				neighbour = this->result(arr);
-				if (neighbour < bestResult) { 
-					bestResult = neighbour;
+				int delta = Delta(arr, i, j);
+				if (delta < 0) {
+					swap(arr[i], arr[j]);
+					bestResult += delta;
 					if (print) printArr(arr, bestResult);
 					i = -1;
 					break;
 				}
-				else {
-					swap(arr[i], arr[j]);
-				}
-
 			}
 		}
 		return bestResult;
@@ -94,21 +99,18 @@ public:
 			}
 		int bestResult = this->result(arr);
 		//cout << s << "  " << bestResult << endl;
-		int neighbour = 0;
-		for (double T = 10000; T > 0.00001; T *= 0.9999) {
+
+		for (double T = 1000; T > 0.00001; T *= 0.9999) {
 			for (int r = 0; r < 10; r++) {
 				int i = rand() % distance.size();
 				int j = rand() % distance.size();
 				while (i == j) {
 					j = rand() % distance.size();
 				}
-				swap(arr[i], arr[j]);
-				neighbour = this->result(arr);
+				int delta = Delta(arr, i, j);
 
-				if (neighbour < bestResult || exp((double)-(neighbour - bestResult) / T) >= getRand()) {
-					bestResult = neighbour;
-				}
-				else {
+				if (delta < 0 || exp(-(double)delta / T) >= getRand()) {
+					bestResult += delta;
 					swap(arr[i], arr[j]);
 				}
 			}
@@ -162,8 +164,7 @@ public:
 				bestPath.first = pathLen;
 				bestPath.second = arr;
 			}
-		}
-		while (next_permutation(arr.begin(), arr.end()));
+		} while (next_permutation(arr.begin(), arr.end()));
 		cout << "Best path found: ";
 		printArr(bestPath.second, bestPath.first);
 		return bestPath.first;
@@ -197,18 +198,26 @@ int main() {
 	int countHill = 0;
 	int countSA = 0;
 	int n = 10;
-	Map m;
+	Map m(10);
 	m.bruteForce();
 	int x = m.HillClimbing();
-	cout <<  "Hill Climbing: " << x << endl;
+	cout << "Hill Climbing: " << x << endl;
 	int z = m.HillClimbing(false, true);
 	cout << "Hill Climbing greedy: " << z << endl;
+	for (int i = 0; i < 10; i++)
+	{
+		cout << "====================================" << endl;
+		cout << "Simulated Annealing: " << m.SimulatedAnnealing() << endl;
+		cout << "Simulated Annealing greedy: " << m.SimulatedAnnealing(true) << endl;
+	}
+
+
 	/*if (z < x) x = z;
 	for (int i = 0; i < n; i++)
 	{
-		
+
 		m.printDistance();
-		
+
 		//cout << "==============================" << endl;
 		int y = m.SimulatedAnnealing();
 		cout  << "Simulated Annealing: " << y << endl;
