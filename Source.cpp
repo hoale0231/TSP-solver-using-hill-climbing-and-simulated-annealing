@@ -239,11 +239,6 @@ void testTime(int mapSize = 250)
 	
 }
 
-void resultTest()
-{
-}
-
-
 int main() {
 	srand(clock());
 	int countHill = 0;
